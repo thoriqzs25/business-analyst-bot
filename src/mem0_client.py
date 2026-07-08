@@ -1,3 +1,4 @@
+import asyncio
 from mem0 import Memory
 
 from src.config import settings
@@ -32,11 +33,24 @@ def get_memory() -> Memory:
 
 
 async def add_memory(user_id: str, messages: list[dict]):
+    await asyncio.to_thread(add_memory_sync, user_id, messages)
+
+
+def add_memory_sync(user_id: str, messages: list[dict]):
     mem = get_memory()
-    mem.add(messages, user_id=user_id)
+    try:
+        mem.add(messages, user_id=user_id)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("Mem0 add failed: %s", e)
 
 
 def search_memory(user_id: str, query: str, top_k: int = 5) -> list[dict]:
     mem = get_memory()
-    result = mem.search(query=query, filters={"user_id": user_id}, top_k=top_k)
-    return result.get("results", [])
+    try:
+        result = mem.search(query=query, filters={"user_id": user_id}, top_k=top_k)
+        return result.get("results", [])
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("Mem0 search failed: %s", e)
+        return []
