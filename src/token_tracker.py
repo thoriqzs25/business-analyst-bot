@@ -6,6 +6,7 @@ from sqlalchemy import select, func
 from src.config import settings
 from src.models.base import Base
 from src.models.token_usage import TokenUsage
+from src.models.business_profile import BusinessProfile  # noqa: F401  register table
 
 _engine = None
 _session_factory = None
@@ -27,6 +28,10 @@ async def close_db():
 
 
 def get_session() -> AsyncSession:
+    if _session_factory is None:
+        raise RuntimeError(
+            "Database not initialized. Call init_db() first."
+        )
     return _session_factory()
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, String, Text, DateTime, Float, JSON
+from sqlalchemy import Column, String, Text, DateTime, Float, JSON, Boolean
 from src.models.base import Base
 
 
@@ -17,6 +17,6 @@ class BusinessProfile(Base):
     goals = Column(Text, default="")
     phone = Column(String(32), default="")
     raw_data = Column(JSON, default=dict)
-    intake_completed = Column(default=False)
+    intake_completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

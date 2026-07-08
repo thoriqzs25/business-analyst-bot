@@ -2,12 +2,11 @@ import json
 import time
 from typing import TypedDict, Literal
 
-from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.postgres import PostgresSaver
+from langgraph.graph import StateGraph, START, END
 
 from src.intake.schema import BusinessProfile
 from src.llm import chat
-from src.mem0_client import search_memory, add_memory_sync
+from src.mem0_client import search_memory, add_memory
 from src.config import settings
 from src.token_tracker import log_token_usage
 
@@ -51,18 +50,18 @@ Gunakan profile_belum_lengkap, profile_lengkap, or tanya_jawab sebagai mode.
 """
 
 
-def build_ba_graph() -> StateGraph:
+def build_ba_graph():
     workflow = StateGraph(BAState)
 
     workflow.add_node("process_message", process_message_node)
-    workflow.set_entry_point("process_message")
+    workflow.add_edge(START, "process_message")
     workflow.add_conditional_edges(
         "process_message",
         decide_next,
         {"lanjut": "process_message", "selesai": END},
     )
 
-    return workflow
+    return workflow.compile()
 
 
 async def process_message_node(state: BAState) -> BAState:
@@ -149,7 +148,7 @@ Jika tidak ada update, kirimkan {{}}.
         except json.JSONDecodeError:
             pass
 
-    await add_memory_sync(user_id, [
+    await add_memory(user_id, [
         {"role": "user", "content": user_message},
         {"role": "assistant", "content": bot_reply},
     ])

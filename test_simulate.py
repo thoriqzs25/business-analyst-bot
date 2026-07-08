@@ -30,6 +30,9 @@ if not api_key:
 async def main():
     from src.intake.schema import BusinessProfile
     from src.agents.business_analyst import process_message
+    from src.token_tracker import init_db
+
+    await init_db()
 
     user_id = "62812xxxx@s.whatsapp.net"
 
