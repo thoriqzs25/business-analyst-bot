@@ -1,7 +1,7 @@
 import logging
 import time
 
-from src.redis_client import publish
+from src.redis_client import publish, save_conversation, load_conversation
 from src.intake.graph import build_ba_graph, BAState, INACTIVITY_TIMEOUT
 from src.intake.schema import BusinessProfile
 
@@ -21,13 +21,14 @@ async def process_message(user_id: str, message: str):
     graph = get_graph()
 
     profile = await _load_profile(user_id)
+    prior_conversation = await load_conversation(user_id)
 
     initial_state: BAState = {
         "user_id": user_id,
         "profile": profile.model_dump(),
         "last_bot_message": "",
         "last_activity": 0.0,
-        "conversation": [{"role": "user", "content": message}],
+        "conversation": prior_conversation + [{"role": "user", "content": message}],
     }
 
     try:
@@ -40,6 +41,9 @@ async def process_message(user_id: str, message: str):
         bot_reply = result.get("last_bot_message", "Maaf, ada gangguan. Coba lagi ya.")
 
         await _save_profile(user_id, BusinessProfile(**result.get("profile", {})))
+
+        full_conversation = result.get("conversation", [])
+        await save_conversation(user_id, full_conversation)
 
         await publish("wa:outgoing", {
             "to": user_id,

@@ -22,6 +22,7 @@ def get_memory() -> Memory | None:
                             "host": settings.qdrant_host,
                             "port": settings.qdrant_port,
                             "collection_name": settings.mem0_qdrant_collection,
+                            "embedding_model_dims": 384,
                         },
                     ),
                     llm=LlmConfig(
@@ -33,11 +34,9 @@ def get_memory() -> Memory | None:
                         },
                     ),
                     embedder=EmbedderConfig(
-                        provider="openai",
+                        provider="huggingface",
                         config={
-                            "model": settings.llm_model,
-                            "openai_base_url": settings.opencode_go_base_url,
-                            "api_key": settings.opencode_go_api_key,
+                            "model": "sentence-transformers/all-MiniLM-L6-v2",
                         },
                     ),
                 )

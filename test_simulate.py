@@ -31,8 +31,10 @@ async def main():
     from src.intake.schema import BusinessProfile
     from src.agents.business_analyst import process_message
     from src.token_tracker import init_db
+    from src.redis_client import init_redis
 
     await init_db()
+    await init_redis()
 
     user_id = "62812xxxx@s.whatsapp.net"
 

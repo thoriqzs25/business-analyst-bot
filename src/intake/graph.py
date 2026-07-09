@@ -107,13 +107,24 @@ async def process_message_node(state: BAState) -> BAState:
 {inactivity_warning}
 
 RESPON dalam Bahasa Indonesia yang santai.
-Setelah merespon, tambahkan baris terakhir dengan JSON:
+
+Setelah RESPON, di baris PALING AKHIR, tambahkan JSON profile update dengan format:
+
 ---BEGIN PROFILE UPDATE---
-{{"mode": "profile_belum_lengkap" | "profile_lengkap" | "tanya_jawab", "field_updates": {{"nama_usaha": "...", ...}}}}
+{{"mode": "profile_belum_lengkap", "field_updates": {{"nama_usaha": "Warung Sembako", "lokasi": "Jakarta"}}}}
 ---END PROFILE UPDATE---
 
-Hanya isi field_updates dengan informasi BARU yang didapat dari percakapan ini. Jangan timpa data yang sudah ada.
-Jika tidak ada update, kirimkan {{}}.
+Contoh field_updates (hanya isi yang BARU didapat):
+- nama_usaha: nama bisnis
+- bidang: industri (misal: "sembako", "makanan", "fashion")
+- omzet: kisaran pendapatan (misal: "30-50 juta/bulan")
+- jumlah_tim: berapa orang (misal: "1 orang", "3 karyawan")
+- lokasi: kota (misal: "Jakarta", "Bandung")
+- kendala: masalah yang dihadapi
+- tujuan: target bisnis
+
+Hanya isi field_updates dengan informasi BARU dari pesan user ini.
+Jangan timpa field yang sudah ada. Jika tidak ada update, kirim {{}}.
 """
 
     response_text, prompt_tokens, completion_tokens = await chat(system, user_message)

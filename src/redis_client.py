@@ -28,6 +28,26 @@ async def publish(channel: str, data: dict):
         await redis.publish(channel, json.dumps(data))
 
 
+CONVERSATION_TTL = 86400 * 30  # 30 days
+
+
+async def save_conversation(user_id: str, conversation: list[dict]):
+    if redis is None:
+        return
+    key = f"conv:{user_id}"
+    await redis.set(key, json.dumps(conversation), ex=CONVERSATION_TTL)
+
+
+async def load_conversation(user_id: str) -> list[dict]:
+    if redis is None:
+        return []
+    key = f"conv:{user_id}"
+    data = await redis.get(key)
+    if data:
+        return json.loads(data)
+    return []
+
+
 def subscribe(channel: str, handler: Callable[[dict], Coroutine[Any, Any, None]]):
     if channel not in _subscriptions:
         _subscriptions[channel] = []
