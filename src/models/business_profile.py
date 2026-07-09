@@ -19,4 +19,5 @@ class BusinessProfile(Base):
     raw_data = Column(JSON, default=dict)
     intake_completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Fix #9: Use lambda to ensure fresh timestamp on each update
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=lambda: datetime.utcnow())
